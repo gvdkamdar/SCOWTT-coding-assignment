@@ -1,4 +1,3 @@
-// src/app/onboarding/page.tsx
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getAuthSession } from "@/lib/auth";

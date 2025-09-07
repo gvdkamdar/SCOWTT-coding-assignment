@@ -1,11 +1,9 @@
-// src/lib/recentFacts.ts
 import { NextRequest, NextResponse } from "next/server";
 
 export type CookieShape = Record<string, string[]>;
 
 export const COOKIE_NAME = "recent_facts_v1";
 // A safe cap for cookie size. ~4KB total cookie budget → 60–90 short ids fits fine.
-// Tune down if you hit cookie size issues; tune up if you want longer history.
 const MAX_PER_MOVIE = 80;
 
 /** Parse the cookie from the incoming request. */
@@ -26,7 +24,7 @@ export function writeRecentCookie(res: NextResponse, obj: CookieShape) {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        maxAge: 60 * 60 * 24, // 1 day
+        maxAge: 60 * 60 * 24,
     });
 }
 

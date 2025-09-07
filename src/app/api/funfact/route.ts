@@ -85,10 +85,6 @@ export async function GET(req: NextRequest) {
             lastRecentCategory,
         });
 
-
-        // (Optional) you can still keep a small “recent window” if you want:
-        const recentIds = seenIds.slice(0, 5);
-
         const respond = (data: any, updatedObj?: typeof recentObj) => {
             const res = NextResponse.json(data, noStore());
             if (updatedObj) {
