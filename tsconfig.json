@@ -31,8 +31,11 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/types/**/*.d.ts",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
     ".next/types/**/*.ts"
   ],
   "exclude": [

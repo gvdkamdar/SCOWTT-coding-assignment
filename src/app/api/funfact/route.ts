@@ -99,7 +99,6 @@ export async function GET(req: NextRequest) {
         const pickStored = async () => {
             const seenIdSet = new Set(seenIds);
 
-            // Pull a handful. Use notIn for clarity.
             const candidates: {
                 id: string;
                 factText: string;
@@ -108,14 +107,13 @@ export async function GET(req: NextRequest) {
             }[] = await prisma.movieFact.findMany({
                 where: {
                     movieId: movie.id,
-                    id: { notIn: seenIds },          // <— notIn
+                    id: { notIn: seenIds },
                 },
                 orderBy: { createdAt: "desc" },
                 take: 25,
                 select: { id: true, factText: true, factCategory: true, factKey: true },
             });
 
-            // DEBUG: detect any overlap (should be zero)
             const overlap = candidates.filter((c) => seenIdSet.has(c.id)).map((c) => c.id);
             if (overlap.length) {
                 console.warn("pickStored: OVERLAP with seenIds (should be 0):", {
@@ -145,7 +143,6 @@ export async function GET(req: NextRequest) {
             const good =
                 byCat ?? novel.find((c) => !recentNorm.has(normalizeFact(c.factText)));
 
-            // DEBUG: log what we decided
             console.log("pickStored:", {
                 movieId: movie.id,
                 seenCount: seenIds.length,
@@ -293,7 +290,7 @@ export async function GET(req: NextRequest) {
                 // Prisma auto-creates a unique selector for @@unique([movieId, factKey])
                 movieId_factKey: { movieId: movie.id, factKey: accepted.key },
             },
-            update: {}, // nothing to update; key uniquely identifies the idea
+            update: {},
             create: {
                 movieId: movie.id,
                 factText: accepted.text,
@@ -302,7 +299,7 @@ export async function GET(req: NextRequest) {
             },
         });
 
-        // (Optional extra guard in case of weird race)
+        // Optional extra guard in case of weird race
         if (!created) {
             created =
                 (await prisma.movieFact.findFirst({

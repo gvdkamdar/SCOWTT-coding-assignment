@@ -6,12 +6,24 @@ export function normalizeTitle(input: string): string {
         .trim();
 }
 
-export function normalizeFact(input: string): string {
-    return input
-        .toLowerCase()
-        .replace(/\s+/g, " ")
-        .replace(/[^\p{L}\p{N}\s]/gu, "")
-        .trim();
+
+export function normalizeFact(s: string) {
+    s = s.toLowerCase();
+    // collapse punctuation to spaces
+    s = s.replace(/[-–—_,.!?;:()[\]{}'"`]/g, " ");
+    // remove extra spaces
+    s = s.replace(/\s+/g, " ").trim();
+
+    // 🔹 remove common stopwords (tune this list as you like)
+    s = s.replace(/\b(?:the|a|an|on|in|of|to|and|for|with|by|at|from)\b/g, " ");
+    s = s.replace(/\s+/g, " ").trim();
+
+    return s;
+}
+
+
+export function withYear(title: string, year: number | null): string {
+    return year ? `${title} (${year})` : title;
 }
 
 const NUMBER_WORDS: Record<string, string> = {

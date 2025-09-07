@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import LogoutButton from "@/components/LogoutButton";
 import FactCard from "@/components/FactCard";
 
+
 export default async function HomePage() {
   const session = await getAuthSession();
   const user = session?.user;

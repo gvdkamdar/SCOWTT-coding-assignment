@@ -6,17 +6,24 @@ import { prisma } from "./prisma";
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
-    // Database sessions let us read sessions server-side easily
-    session: { strategy: "database" },
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         }),
     ],
-    pages: {
-        signIn: "/login",
+    session: { strategy: "jwt" },
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) token.id = (user as any).id;
+            return token;
+        },
+        async session({ session, token }) {
+            if (session.user && token.id) (session.user as any).id = token.id as string;
+            return session;
+        },
     },
+    secret: process.env.NEXTAUTH_SECRET,
 };
 
 export function getAuthSession() {
