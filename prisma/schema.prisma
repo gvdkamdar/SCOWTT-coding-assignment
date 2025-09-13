@@ -87,7 +87,7 @@ model MovieFact {
 
   movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
 
+  @@unique([movieId, factKey], map: "uniq_movie_fact_key")
   @@index([movieId, factKey])
   @@index([movieId, factCategory])
-  @@unique([movieId, factKey], map: "uniq_movie_fact_key")
 }

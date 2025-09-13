@@ -1,58 +1,44 @@
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { getAuthSession } from "@/lib/auth";
-import { normalizeTitle } from "@/lib/normalize";
+import { MovieService } from "@/services/movieService"
+import { UserService } from "@/services/userService"
 
 export default async function OnboardingPage() {
-    const session = await getAuthSession();
-    if (!session?.user?.email) {
-        redirect("/login");
+    // redirect user to login if no email
+    const userAccessResult = await UserService.validateUserAccess(true);
+    if (!userAccessResult.success) {
+        redirect(userAccessResult.redirectTo);
     }
 
-    const dbUser = await prisma.user.findUnique({
-        where: { email: session.user.email },
-        select: { favoriteMovieId: true },
-    });
-    if (dbUser?.favoriteMovieId) {
+    // if user already has a fav movie, redirect to home
+    if (userAccessResult.user.favoriteMovieId) {
         redirect("/");
     }
 
+    // function to add movie if it doesn't exist
     async function saveMovie(formData: FormData) {
         "use server";
 
-        const s = await getAuthSession();
-        if (!s?.user?.email) redirect("/login");
+        // this will come from user service, done again so that session is not lost
+        const userAccessResult = await UserService.validateUserAccess(true);
+        // check again to catch errors if any 
+        if (!userAccessResult.success) { redirect(userAccessResult.redirectTo) };
 
-        const rawTitle = String(formData.get("title") ?? "").trim();
-        const rawYear = String(formData.get("year") ?? "").trim();
-        if (!rawTitle) return;
+        // data extracted from user input
+        const rawTitle = String(formData.get("title") ?? "");
+        const rawYear = String(formData.get("year") ?? "");
+        // if (!rawTitle) return;
 
-        const year = rawYear ? Number(rawYear) : null;
-        if (rawYear && Number.isNaN(year)) {
-            // Simple guard, ignore invalid year
+        // add movie to db
+        const result = await MovieService.setUserFavoriteMovie(
+            // ! at end to tell typescript that email is not null
+            userAccessResult.user.email!,
+            { title: rawTitle, year: rawYear }
+        );
+        // error if movie was not added 
+        if (!result.success) {
+            console.error("Failed to add movie", result.error);
             return;
         }
-
-        const normalizedTitle = normalizeTitle(rawTitle);
-
-        // Step 1: look for an existing row, year can be null in findFirst
-        const existing = await prisma.movie.findFirst({
-            where: { normalizedTitle, year },
-        });
-
-        // Step 2: create if missing
-        const movie =
-            existing ??
-            (await prisma.movie.create({
-                data: { title: rawTitle, normalizedTitle, year },
-            }));
-
-        // Link to user
-        await prisma.user.update({
-            where: { email: s.user.email },
-            data: { favoriteMovieId: movie.id },
-        });
-
         redirect("/");
     }
 

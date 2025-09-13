@@ -5,9 +5,12 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+    // next-auth function, returns user authentication status
     const { status } = useSession();
+    // next module to handle client side routing
     const router = useRouter();
 
+    // if user is authenticated, redirect to home
     useEffect(() => {
         if (status === "authenticated") {
             router.replace("/");

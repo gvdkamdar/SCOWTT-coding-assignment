@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 
 type FactResponse =
-    | { ok: true; type: "stored" | "generated"; movieTitle: string; factId: string; text: string }
+    | { ok: true; type: "stored" | "generated"; movieTitle: string; factId: string; factText: string }
     | { ok: false; message: string; actions?: string[] };
 
 export default function FactCard() {
@@ -44,7 +44,7 @@ export default function FactCard() {
             {!loading && resp?.ok && (
                 <>
                     <p style={{ marginBottom: 8 }}><strong>{resp.movieTitle}</strong></p>
-                    <p style={{ marginTop: 0 }}>{resp.text}</p>
+                    <p style={{ marginTop: 0 }}>{resp.factText}</p>
 
                     <div className="spacer" />
                     <div className="row">

@@ -14,7 +14,7 @@ export function normalizeFact(s: string) {
     // remove extra spaces
     s = s.replace(/\s+/g, " ").trim();
 
-    // 🔹 remove common stopwords (tune this list as you like)
+    // remove common stopwords 
     s = s.replace(/\b(?:the|a|an|on|in|of|to|and|for|with|by|at|from)\b/g, " ");
     s = s.replace(/\s+/g, " ").trim();
 

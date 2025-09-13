@@ -1,27 +1,23 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
-import { getAuthSession } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+
 import LogoutButton from "@/components/LogoutButton";
 import FactCard from "@/components/FactCard";
 
+import { UserService } from "@/services/userService";
 
 export default async function HomePage() {
-  const session = await getAuthSession();
-  const user = session?.user;
 
-  if (!user?.email) {
-    redirect("/login");
+  // record the user access result
+  const userAccessResult = await UserService.validateUserAccess();
+
+  // if success false, then redirect
+  if (!userAccessResult.success) {
+    redirect(userAccessResult.redirectTo)
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { email: user.email },
-    select: { favoriteMovieId: true, name: true, email: true, image: true },
-  });
-
-  if (!dbUser?.favoriteMovieId) {
-    redirect("/onboarding");
-  }
+  // if success true, then we have user
+  const user = userAccessResult.user;
 
   return (
     <main className="container">
